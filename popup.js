@@ -335,7 +335,6 @@ function sendActionToContentScript(action, data) {
 }
 
 function getTogglData(url, apiKey) {
-    console.log(url);
     return  $.ajax({
         dataType: "json",
         headers: {
@@ -343,16 +342,6 @@ function getTogglData(url, apiKey) {
         },
         method: "GET",
         url: url,
-        success: function (textStatus, status) {
-            console.log(textStatus);
-            console.log(status);
-        },
-        error: function(xhr, textStatus, error) {
-            console.log(xhr.responseText);
-            console.log(xhr.statusText);
-            console.log(textStatus);
-            console.log(error);
-        }
     });
 }
 
