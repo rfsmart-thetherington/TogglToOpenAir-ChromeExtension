@@ -335,13 +335,24 @@ function sendActionToContentScript(action, data) {
 }
 
 function getTogglData(url, apiKey) {
-    return $.ajax({
+    console.log(url);
+    return  $.ajax({
         dataType: "json",
         headers: {
             "Authorization": "Basic " + btoa(apiKey + ":api_token")
         },
         method: "GET",
         url: url,
+        success: function (textStatus, status) {
+            console.log(textStatus);
+            console.log(status);
+        },
+        error: function(xhr, textStatus, error) {
+            console.log(xhr.responseText);
+            console.log(xhr.statusText);
+            console.log(textStatus);
+            console.log(error);
+        }
     });
 }
 
@@ -381,7 +392,7 @@ function getTogglCredentials(workspaceFunction) {
     return getTogglUserId(apiKey)
         .then(function(response) {
             if (response) {
-                userId = response.data.id;
+                userId = response.id;
 
                 return getDefaultTogglWorkspace(apiKey, workspaceFunction)
             } else {
@@ -401,7 +412,7 @@ function getTogglCredentials(workspaceFunction) {
 }
 
 function getTogglUserId(apiKey) {
-    return getTogglData("https://api.track.toggl.com/api/v8/me", apiKey);
+    return getTogglData("https://api.track.toggl.com/api/v9/me", apiKey);
 }
 
 function setupWorkspaces(apiKey) {
@@ -518,31 +529,31 @@ function getSelectedTogglWorkspace() {
 }
 
 function getTogglWorkspaces(apiKey) {
-    return getTogglData("https://api.track.toggl.com/api/v8/workspaces", apiKey);
+    return getTogglData("https://api.track.toggl.com/api/v9/workspaces", apiKey);
 }
 
 function getTogglWorkspaceClients(apiKey, workspaceId) {
-    return getTogglData("https://api.track.toggl.com/api/v8/workspaces/" + workspaceId + "/clients", apiKey);
+    return getTogglData("https://api.track.toggl.com/api/v9/workspaces/" + workspaceId + "/clients", apiKey);
 }
 
 function createTogglClient(apiKey, workspaceId, clientName) {
-    return postTogglData("https://api.track.toggl.com/api/v8/clients", apiKey, { client: { name: clientName, wid: workspaceId } });
+    return postTogglData("https://api.track.toggl.com/api/v9/workspaces/" + workspaceId + "/clients", apiKey, { client: { name: clientName, wid: workspaceId } });
 }
 
 function getTogglWorkspaceProjects(apiKey, workspaceId) {
-    return getTogglData("https://api.track.toggl.com/api/v8/workspaces/" + workspaceId + "/projects?active=both", apiKey);
+    return getTogglData("https://api.track.toggl.com/api/v9/workspaces/" + workspaceId + "/projects?active=both", apiKey);
 }
 
 function createTogglProject(apiKey, workspaceId, projectName, clientId) {
-    return postTogglData("https://api.track.toggl.com/api/v8/projects", apiKey, { project: { name: projectName, wid: workspaceId, cid: clientId, is_private: true } });
+    return postTogglData("https://api.track.toggl.com/api/v9/workspaces/" + workspaceId + "/projects", apiKey, { project: { name: projectName, wid: workspaceId, cid: clientId, is_private: true } });
 }
 
-function archiveTogglProject(apiKey, projectId) {
-    return putTogglData("https://api.track.toggl.com/api/v8/projects/" + projectId, apiKey, { project: { is_private: true, active: false } });
+function archiveTogglProject(apiKey, projectId, workspaceid) {
+    return putTogglData("https://api.track.toggl.com/api/v9/workspaces/" + workspaceId + "/projects/"+ projectId, apiKey, { project: { is_private: true, active: false } });
 }
 
-function unarchiveTogglProject(apiKey, projectId) {
-    return putTogglData("https://api.track.toggl.com/api/v8/projects/" + projectId, apiKey, { project: { is_private: true, active: true } });
+function unarchiveTogglProject(apiKey, projectId, workspaceid) {
+    return putTogglData("https://api.track.toggl.com/api/v9/projects/" + workspaceId + "/projects/"+ projectId, apiKey, { project: { is_private: true, active: true } });
 }
 
 function mapToggleProjectsToClients(clients, projects) {
@@ -807,7 +818,7 @@ function getTogglTimeEntries(apiKey, userId, workspaceId, startDate, endDate) {
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
-    return getTogglData("https://api.track.toggl.com/api/v8/time_entries?workspace_id=" + workspaceId +
+    return getTogglData("https://api.track.toggl.com/api/v9/time_entries?workspace_id=" + workspaceId +
         "&user_agent=toggle_to_openair&start_date=" + startDate.toJSON() + "&end_date=" + endDate.toJSON(), apiKey);
 }
 
